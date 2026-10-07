@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 import sqlite3
 import os
 import qrcode
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 app = Flask(__name__)
 
@@ -752,10 +754,11 @@ def receive_activity():
 
     from datetime import datetime
 
-    recorded_at = datetime.now().strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
-
+    recorded_at = datetime.now(
+    ZoneInfo("Asia/Kolkata")
+).strftime(
+    "%Y-%m-%d %H:%M:%S"
+)
     conn = get_db_connection()
 
     # Check whether the pet exists
