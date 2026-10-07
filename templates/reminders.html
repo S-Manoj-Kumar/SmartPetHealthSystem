@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ pet.name }} - Reminders</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .reminders-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .reminder-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .reminder-card h3 {
+            margin-top: 0;
+        }
+
+        .reminder-date {
+            font-weight: bold;
+        }
+
+        .add-reminder {
+            margin-top: 35px;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+
+        .no-reminders {
+            text-align: center;
+            padding: 25px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="reminders-container">
+
+    <a href="{{ url_for('pet_profile', pet_id=pet.pet_id) }}"
+       class="back-button">
+        ← Back to {{ pet.name }}'s Profile
+    </a>
+
+    <div class="page-title">
+        <h1>🔔 {{ pet.name }}'s Reminders</h1>
+        <p>Keep track of important health and care reminders.</p>
+    </div>
+
+
+    <!-- EXISTING REMINDERS -->
+
+    <section>
+        <h2>Upcoming Reminders</h2>
+
+        {% if reminders %}
+
+            {% for reminder in reminders %}
+
+                <div class="reminder-card">
+
+                    <h3>🔔 {{ reminder["reminder_type"] }}</h3>
+
+                    <p class="reminder-date">
+                        📅 {{ reminder["reminder_date"] }}
+                    </p>
+
+                    {% if reminder["description"] %}
+                        <p>
+                            {{ reminder["description"] }}
+                        </p>
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="no-reminders">
+                <p>No reminders have been added yet.</p>
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ADD REMINDER -->
+
+    <section class="add-reminder">
+
+        <h2>➕ Add Reminder</h2>
+
+        <form method="POST">
+
+            <div class="form-group">
+                <label for="reminder_type">
+                    Reminder Type
+                </label>
+
+                <input
+                    type="text"
+                    id="reminder_type"
+                    name="reminder_type"
+                    placeholder="Example: Vaccination"
+                    required
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="reminder_date">
+                    Reminder Date
+                </label>
+
+                <input
+                    type="date"
+                    id="reminder_date"
+                    name="reminder_date"
+                    required
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="description">
+                    Description
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    placeholder="Describe the reminder..."
+                ></textarea>
+            </div>
+
+
+            <button type="submit" class="submit-button">
+                Add Reminder
+            </button>
+
+        </form>
+
+    </section>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Register New Pet - SmartPet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="profile-container">
+
+    <div class="profile-card">
+
+        <h1>🐾 Register New Pet</h1>
+
+        <p style="margin-bottom:25px;">
+            Create a digital healthcare profile for your pet.
+        </p>
+
+        <form method="POST">
+
+            <label>Pet Name</label>
+            <input type="text" name="name" placeholder="Enter pet name" required>
+
+            <label>Breed</label>
+            <input type="text" name="breed" placeholder="Enter breed" required>
+
+            <label>Age</label>
+            <input type="number" name="age" min="0" placeholder="Enter age" required>
+
+            <label>Gender</label>
+            <select name="gender">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+
+            <label>Owner Name</label>
+            <input type="text" name="owner" placeholder="Enter owner name" required>
+
+            <label>Owner Phone Number</label>
+            <input type="tel" name="phone" placeholder="Enter phone number" required>
+
+            <button type="submit">
+                Register Pet
+            </button>
+
+        </form>
+
+        <br>
+
+        <a href="/" class="register-btn">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

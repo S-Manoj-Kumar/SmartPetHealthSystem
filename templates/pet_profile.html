@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ pet.name }} - SmartPet Profile</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="profile-container">
+
+    <div class="profile-card">
+
+        <div class="pet-profile-header">
+
+            <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=300"
+                 class="profile-image">
+
+            <h1>{{ pet.name }}</h1>
+
+            <p class="pet-id">
+                Pet ID: <strong>{{ pet.pet_id }}</strong>
+            </p>
+
+        </div>
+
+
+        <div class="pet-details">
+
+            <p>
+                <strong>Breed:</strong>
+                {{ pet.breed }}
+            </p>
+
+            <p>
+                <strong>Age:</strong>
+                {{ pet.age }} years
+            </p>
+
+            <p>
+                <strong>Gender:</strong>
+                {{ pet.gender if pet.gender else "Not specified" }}
+            </p>
+
+            <p>
+                <strong>Owner:</strong>
+                {{ pet.owner }}
+            </p>
+
+            <p>
+                <strong>Phone:</strong>
+                {{ pet.phone }}
+            </p>
+
+        </div>
+
+
+        <hr>
+
+
+        <h2>Healthcare Management</h2>
+
+        <div class="health-buttons">
+
+            <a href="{{ url_for('pet_vaccinations', pet_id=pet.pet_id) }}" class="health-btn">
+    💉 Vaccinations
+</a>
+
+            <a href="{{ url_for('pet_medications', pet_id=pet.pet_id) }}"
+   class="health-btn">
+    💊 Medications
+</a>
+
+            <a href="{{ url_for('pet_health_records', pet_id=pet.pet_id) }}"
+   class="health-btn">
+    🩺 Health Records
+</a>
+
+            <a href="{{ url_for('pet_treatments', pet_id=pet.pet_id) }}" class="health-btn">
+    📋 Treatment History
+</a>
+
+            <a href="{{ url_for('pet_reminders', pet_id=pet.pet_id) }}" class="health-btn">
+    🔔 Reminders
+</a>
+
+        </div>
+
+
+        <hr>
+
+
+        <div class="qr-section">
+
+            <h2>Pet Identification QR</h2>
+
+            <img src="{{ url_for('static',
+                         filename='qrcodes/' + pet.pet_id + '.png') }}"
+                 class="profile-qr">
+
+            <p>
+                Scan this QR code to access
+                {{ pet.name }}'s digital profile.
+            </p>
+
+        </div>
+
+
+        <a href="/" class="register-btn">
+            ← Back To Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

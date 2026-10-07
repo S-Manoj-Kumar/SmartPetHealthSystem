@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ pet.name }} - Treatment History</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .treatments-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .treatment-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .treatment-card h3 {
+            margin-top: 0;
+        }
+
+        .treatment-date {
+            font-weight: bold;
+        }
+
+        .add-treatment {
+            margin-top: 35px;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+
+        .no-treatments {
+            text-align: center;
+            padding: 25px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="treatments-container">
+
+    <a href="{{ url_for('pet_profile', pet_id=pet.pet_id) }}"
+       class="back-button">
+        ← Back to {{ pet.name }}'s Profile
+    </a>
+
+    <div class="page-title">
+
+        <h1>📋 {{ pet.name }}'s Treatment History</h1>
+
+        <p>
+            Keep track of {{ pet.name }}'s previous treatments and veterinary care.
+        </p>
+
+    </div>
+
+
+    <!-- EXISTING TREATMENTS -->
+
+    <section>
+
+        <h2>Previous Treatments</h2>
+
+        {% if records %}
+
+            {% for record in records %}
+
+                <div class="treatment-card">
+
+                    <h3>
+                        🩺 {{ record["treatment_name"] }}
+                    </h3>
+
+                    <p class="treatment-date">
+                        📅 {{ record["treatment_date"] }}
+                    </p>
+
+                    {% if record["veterinarian"] %}
+                        <p>
+                            <strong>Veterinarian:</strong>
+                            {{ record["veterinarian"] }}
+                        </p>
+                    {% endif %}
+
+                    {% if record["notes"] %}
+                        <p>
+                            <strong>Notes:</strong>
+                            {{ record["notes"] }}
+                        </p>
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="no-treatments">
+
+                <p>
+                    No treatment records have been added yet.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ADD TREATMENT -->
+
+    <section class="add-treatment">
+
+        <h2>➕ Add Treatment</h2>
+
+        <form method="POST">
+
+            <div class="form-group">
+
+                <label for="treatment_name">
+                    Treatment Name
+                </label>
+
+                <input
+                    type="text"
+                    id="treatment_name"
+                    name="treatment_name"
+                    placeholder="Example: Dental Cleaning"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="treatment_date">
+                    Treatment Date
+                </label>
+
+                <input
+                    type="date"
+                    id="treatment_date"
+                    name="treatment_date"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="veterinarian">
+                    Veterinarian
+                </label>
+
+                <input
+                    type="text"
+                    id="veterinarian"
+                    name="veterinarian"
+                    placeholder="Veterinarian name"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="notes">
+                    Notes
+                </label>
+
+                <textarea
+                    id="notes"
+                    name="notes"
+                    placeholder="Describe the treatment or important observations..."
+                ></textarea>
+
+            </div>
+
+
+            <button type="submit" class="submit-button">
+                Add Treatment
+            </button>
+
+        </form>
+
+    </section>
+
+</div>
+
+</body>
+</html>

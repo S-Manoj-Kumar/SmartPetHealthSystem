@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>{{ pet.name }} - Medications</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="profile-container">
+
+    <div class="profile-card">
+
+        <h1>💊 Medication Records</h1>
+
+        <p>
+            <strong>{{ pet.name }}</strong>
+            — Pet ID: {{ pet.pet_id }}
+        </p>
+
+        <hr><br>
+
+
+        <!-- MEDICATION HISTORY -->
+
+        <h2>Medication History</h2>
+
+        {% if records %}
+
+            {% for medication in records %}
+
+            <div class="health-record">
+
+                <h3>💊 {{ medication.medicine_name }}</h3>
+
+                {% if medication.dosage %}
+                <p>
+                    <strong>Dosage:</strong>
+                    {{ medication.dosage }}
+                </p>
+                {% endif %}
+
+                {% if medication.start_date %}
+                <p>
+                    <strong>Start Date:</strong>
+                    {{ medication.start_date }}
+                </p>
+                {% endif %}
+
+                {% if medication.end_date %}
+                <p>
+                    <strong>End Date:</strong>
+                    {{ medication.end_date }}
+                </p>
+                {% endif %}
+
+                {% if medication.veterinarian %}
+                <p>
+                    <strong>Veterinarian:</strong>
+                    {{ medication.veterinarian }}
+                </p>
+                {% endif %}
+
+                {% if medication.notes %}
+                <p>
+                    <strong>Notes:</strong>
+                    {{ medication.notes }}
+                </p>
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>No medication records available for {{ pet.name }}.</p>
+
+        {% endif %}
+
+
+        <hr><br>
+
+
+        <!-- ADD MEDICATION -->
+
+        <h2>➕ Add Medication</h2>
+
+        <form method="POST">
+
+            <label>Medication Name</label>
+
+            <input
+                type="text"
+                name="medicine_name"
+                placeholder="Example: Amoxicillin"
+                required
+            >
+
+
+            <label>Dosage</label>
+
+            <input
+                type="text"
+                name="dosage"
+                placeholder="Example: 500 mg twice daily"
+            >
+
+
+            <label>Start Date</label>
+
+            <input
+                type="date"
+                name="start_date"
+            >
+
+
+            <label>End Date</label>
+
+            <input
+                type="date"
+                name="end_date"
+            >
+
+
+            <label>Veterinarian</label>
+
+            <input
+                type="text"
+                name="veterinarian"
+                placeholder="Veterinarian name"
+            >
+
+
+            <label>Notes</label>
+
+            <textarea
+                name="notes"
+                placeholder="Additional medication notes"
+            ></textarea>
+
+
+            <button type="submit">
+                Save Medication
+            </button>
+
+        </form>
+
+
+        <br>
+
+        <a
+            href="{{ url_for('pet_profile', pet_id=pet.pet_id) }}"
+            class="register-btn"
+        >
+            ← Back To Pet Profile
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartPet | Pet Healthcare Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<!-- =========================================================
+     SIDEBAR
+     ========================================================= -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+        <div class="brand-mark">SP</div>
+
+        <div>
+            <h2>SmartPet</h2>
+            <span>Pet Healthcare</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <p class="nav-label">MAIN</p>
+
+        <a href="/" class="nav-item active">
+            <span class="nav-icon">⌂</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="#registered-pets" class="nav-item">
+            <span class="nav-icon">♡</span>
+            <span>Pet Profiles</span>
+        </a>
+
+        <p class="nav-label">HEALTHCARE</p>
+
+        <a href="/vaccinations" class="nav-item">
+            <span class="nav-icon">+</span>
+            <span>Vaccinations</span>
+        </a>
+
+        <a href="#reminders" class="nav-item">
+            <span class="nav-icon">◷</span>
+            <span>Reminders</span>
+        </a>
+
+        <a href="#registered-pets" class="nav-item">
+            <span class="nav-icon">⌁</span>
+            <span>Health Records</span>
+        </a>
+
+        <p class="nav-label">SMART FEATURES</p>
+
+        <a href="#qr-section" class="nav-item">
+            <span class="nav-icon">▣</span>
+            <span>QR Identification</span>
+        </a>
+
+        <a href="#activity-section" class="nav-item">
+            <span class="nav-icon">⌁</span>
+            <span>Activity Monitoring</span>
+        </a>
+
+        <a href="#gps-section" class="nav-item">
+            <span class="nav-icon">◎</span>
+            <span>GPS Tracking</span>
+        </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+
+        <div class="sidebar-footer-line"></div>
+
+        <p>Smart Pet Health</p>
+        <span>Connected care for every pet.</span>
+
+    </div>
+
+</aside>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+     ========================================================= -->
+
+<main class="main-content">
+
+
+    <!-- =====================================================
+         TOP BAR
+         ===================================================== -->
+
+    <header class="topbar">
+
+        <div>
+            <p class="eyebrow">PET HEALTHCARE PLATFORM</p>
+
+            <h1>Good care starts with<br>
+                <span>better information.</span>
+            </h1>
+
+            <p class="topbar-description">
+                Manage your pet's healthcare information,
+                vaccination schedule and activity from one
+                connected platform.
+            </p>
+        </div>
+
+        <div class="topbar-action">
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+                System Active
+            </div>
+
+            <a href="/register" class="register-btn">
+                + Register New Pet
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         DECORATIVE HERO / INTRODUCTION
+         ===================================================== -->
+
+    <section class="hero-panel">
+
+        <div class="hero-content">
+
+            <span class="hero-kicker">
+                SMARTPET HEALTH SYSTEM
+            </span>
+
+            <h2>
+                One digital record.<br>
+                A healthier life.
+            </h2>
+
+            <p>
+                Keep important pet healthcare information
+                organized, accessible and connected through
+                a single digital profile.
+            </p>
+
+            <div class="hero-tags">
+
+                <span>Digital Records</span>
+                <span>Vaccination Tracking</span>
+                <span>Smart Monitoring</span>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+            <div class="hero-circle hero-circle-one"></div>
+            <div class="hero-circle hero-circle-two"></div>
+
+            <div class="hero-leaf leaf-one"></div>
+            <div class="hero-leaf leaf-two"></div>
+            <div class="hero-leaf leaf-three"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         STATISTICS
+         ===================================================== -->
+
+    <section class="stats-section">
+
+        <div class="section-heading">
+
+            <div>
+                <p class="section-kicker">OVERVIEW</p>
+                <h2>Healthcare at a glance</h2>
+            </div>
+
+            <p class="section-description">
+                A quick view of the information currently
+                maintained in your SmartPet system.
+            </p>
+
+        </div>
+
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">REGISTERED PETS</span>
+                    <span class="stat-icon">♡</span>
+                </div>
+
+                <h3>{{ pet_count }}</h3>
+
+                <p>
+                    Pet profile{% if pet_count != 1 %}s{% endif %}
+                    currently registered
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">VACCINATIONS</span>
+                    <span class="stat-icon">+</span>
+                </div>
+
+                <h3>{{ vaccine_count }}</h3>
+
+                <p>
+                    Vaccination records maintained
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">REMINDERS</span>
+                    <span class="stat-icon">◷</span>
+                </div>
+
+                <h3>{{ reminder_count }}</h3>
+
+                <p>
+                    Healthcare reminders recorded
+                </p>
+
+            </div>
+
+
+            <div class="stat-card stat-card-accent">
+
+                <div class="stat-top">
+                    <span class="stat-label">IDENTIFICATION</span>
+                    <span class="stat-icon">▣</span>
+                </div>
+
+                <h3>QR</h3>
+
+                <p>
+                    Digital profile identification enabled
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN DASHBOARD GRID
+         ===================================================== -->
+
+    <section class="dashboard">
+
+
+        <!-- =================================================
+             REGISTERED PETS
+             ================================================= -->
+
+        <div class="card pets-card" id="registered-pets">
+
+            <div class="card-header">
+
+                <div>
+                    <p class="card-kicker">PET DIRECTORY</p>
+                    <h2>Registered Pets</h2>
+                </div>
+
+                <span class="card-number">
+                    {{ pet_count }}
+                </span>
+
+            </div>
+
+
+            {% if pets %}
+
+                <div class="pet-list">
+
+                    {% for pet in pets %}
+
+                    <div class="pet-item">
+
+                        <div class="pet-avatar">
+                            {{ pet.name[0]|upper }}
+                        </div>
+
+                        <div class="pet-info">
+
+                            <h3>{{ pet.name }}</h3>
+
+                            <p>{{ pet.breed }}</p>
+
+                            <span>
+                                {{ pet.pet_id }}
+                            </span>
+
+                        </div>
+
+                        <a href="{{ url_for('pet_profile', pet_id=pet.pet_id) }}"
+                           class="arrow-btn">
+                            →
+                        </a>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">♡</div>
+
+                    <h3>No pets registered</h3>
+
+                    <p>
+                        Register your first pet to begin
+                        managing their healthcare information.
+                    </p>
+
+                    <a href="/register" class="small-btn">
+                        Register Pet
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             HEALTHCARE OVERVIEW
+             ================================================= -->
+
+        <div class="card healthcare-card">
+
+            <div class="card-header">
+
+                <div>
+                    <p class="card-kicker">CARE MANAGEMENT</p>
+                    <h2>Healthcare Overview</h2>
+                </div>
+
+                <span class="card-icon-large">+</span>
+
+            </div>
+
+
+            <div class="health-intro">
+
+                <p>
+                    SmartPet keeps essential healthcare
+                    information organized in one digital
+                    location.
+                </p>
+
+            </div>
+
+
+            <div class="health-list">
+
+                <div class="health-item">
+
+                    <span class="health-icon">+</span>
+
+                    <div>
+                        <h3>Vaccination History</h3>
+                        <p>
+                            Maintain vaccination records
+                            for long-term reference.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="health-item">
+
+                    <span class="health-icon">○</span>
+
+                    <div>
+                        <h3>Medication & Treatment</h3>
+                        <p>
+                            Store medication and treatment
+                            information digitally.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="health-item">
+
+                    <span class="health-icon">⌁</span>
+
+                    <div>
+                        <h3>Health History</h3>
+                        <p>
+                            Maintain illness, injury and
+                            veterinarian records.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REMINDERS
+             ================================================= -->
+
+        <div class="card reminders-card" id="reminders">
+
+            <div class="card-header">
+
+                <div>
+                    <p class="card-kicker">SCHEDULE</p>
+                    <h2>Healthcare Reminders</h2>
+                </div>
+
+                <span class="card-icon-large">◷</span>
+
+            </div>
+
+
+            {% if reminders %}
+
+                <div class="reminder-list">
+
+                    {% for reminder in reminders %}
+
+                    <div class="reminder-item">
+
+                        <div class="reminder-date">
+
+                            <strong>
+                                {{ reminder["reminder_date"] }}
+                            </strong>
+
+                        </div>
+
+                        <div class="reminder-content">
+
+                            <h3>
+                                {{ reminder["reminder_type"] }}
+                            </h3>
+
+                            <p>
+                                {{ reminder["pet_name"] }}
+                            </p>
+
+                            {% if reminder["description"] %}
+
+                            <span>
+                                {{ reminder["description"] }}
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state compact">
+
+                    <div class="empty-icon">◷</div>
+
+                    <h3>No reminders yet</h3>
+
+                    <p>
+                        Vaccination and healthcare
+                        due-date reminders will appear here.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             QR IDENTIFICATION
+             ================================================= -->
+
+        <div class="card qr-card" id="qr-section">
+
+            <div class="card-header">
+
+                <div>
+                    <p class="card-kicker">IDENTIFICATION</p>
+                    <h2>QR Identification</h2>
+                </div>
+
+                <span class="card-icon-large">▣</span>
+
+            </div>
+
+
+            <p class="card-description">
+                Each registered pet is assigned a unique QR
+                code that provides quick access to its
+                digital profile.
+            </p>
+
+
+            {% if pets %}
+
+            <div class="qr-pet-list">
+
+                {% for pet in pets %}
+
+                <div class="qr-pet-item">
+
+                    <img
+                        src="{{ url_for('static', filename='qrcodes/' + pet.pet_id + '.png') }}"
+                        class="qr-image"
+                        alt="QR code for {{ pet.name }}">
+
+                    <div>
+
+                        <h3>{{ pet.name }}</h3>
+
+                        <p>{{ pet.pet_id }}</p>
+
+                    </div>
+
+                    <a href="{{ url_for('pet_profile', pet_id=pet.pet_id) }}"
+                       class="small-btn">
+                        Open Profile
+                    </a>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="empty-state compact">
+
+                <div class="empty-icon">▣</div>
+
+                <h3>QR codes will appear here</h3>
+
+                <p>
+                    Register a pet to generate its unique
+                    identification QR code.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIVITY MONITORING
+             ================================================= -->
+
+        <div class="card activity-card" id="activity-section">
+
+            <div class="card-header">
+
+                <div>
+                    <p class="card-kicker">SMART MONITORING</p>
+                    <h2>Activity Monitoring</h2>
+                </div>
+
+                <span class="card-icon-large">⌁</span>
+
+            </div>
+
+
+            {% if latest_activity %}
+
+            <div class="activity-highlight">
+
+                <div class="activity-pet">
+
+                    <div class="pet-avatar activity-avatar">
+                        {{ latest_activity["name"][0]|upper }}
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            {{ latest_activity["name"] }}
+                        </h3>
+
+                        <p>
+                            Latest recorded activity
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="activity-level">
+
+                    <span>ACTIVITY LEVEL</span>
+
+                    <strong>
+                        {{ latest_activity["activity_level"] }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="activity-details">
+
+                <div>
+                    <span>Activity Value</span>
+                    <strong>
+                        {{ latest_activity["activity_value"] }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Last Recorded</span>
+                    <strong>
+                        {{ latest_activity["recorded_at"] }}
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <span class="connected-badge">
+                ● ESP32 Activity Connected
+            </span>
+
+            {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">⌁</div>
+
+                <h3>Waiting for activity data</h3>
+
+                <p>
+                    Activity information will appear here
+                    once data is received from the ESP32
+                    monitoring prototype.
+                </p>
+
+                <span class="future-badge">
+                    ESP32 Monitoring
+                </span>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             GPS
+             ================================================= -->
+
+        <div class="card gps-card" id="gps-section">
+
+            <div class="gps-decoration">
+
+                <div class="gps-ring ring-one"></div>
+                <div class="gps-ring ring-two"></div>
+                <div class="gps-ring ring-three"></div>
+
+            </div>
+
+
+            <div class="gps-content">
+
+                <p class="card-kicker">FUTURE ENHANCEMENT</p>
+
+                <h2>GPS Location Tracking</h2>
+
+                <p>
+                    Location tracking and lost-pet support
+                    are planned as future enhancements
+                    to the SmartPet system.
+                </p>
+
+                <span class="future-badge">
+                    Planned Feature
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="dashboard-footer">
+
+        <div>
+            <strong>SmartPet</strong>
+            <span>
+                Smart Pet Health & Vaccination Monitoring System
+            </span>
+        </div>
+
+        <p>
+            Digital healthcare • Smart identification • Activity monitoring
+        </p>
+
+    </footer>
+
+</main>
+
+</body>
+</html>
