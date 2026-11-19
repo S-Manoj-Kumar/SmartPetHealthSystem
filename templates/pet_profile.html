@@ -93,6 +93,89 @@
         <hr>
 
 
+        <hr>
+
+        <!-- ACTIVITY MONITORING -->
+
+        <div class="activity-profile-section">
+
+            <h2>Activity Monitoring</h2>
+
+            {% if latest_activity %}
+
+                <div class="activity-details">
+
+                    <div>
+                        <span>Activity Level</span>
+                        <strong id="profile-activity-level">
+                            {{ latest_activity["activity_level"] }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Activity Value</span>
+                        <strong id="profile-activity-value">
+                            {{ "%.2f"|format(latest_activity["activity_value"]) }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Last Recorded</span>
+                        <strong id="profile-activity-time">
+                            {{ latest_activity["recorded_at"] }}
+                        </strong>
+                    </div>
+
+                </div>
+
+                <h3>Recent Activity History</h3>
+
+                <div class="activity-table-wrapper">
+
+                    <table class="activity-table">
+
+                        <thead>
+                            <tr>
+                                <th>Value</th>
+                                <th>Level</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for record in recent_activity %}
+
+                            <tr>
+                                <td>
+                                    {{ "%.2f"|format(record["activity_value"]) }}
+                                </td>
+
+                                <td>
+                                    <span class="activity-level-badge">
+                                        {{ record["activity_level"] }}
+                                    </span>
+                                </td>
+
+                                <td>{{ record["recorded_at"] }}</td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p>No activity readings available yet.</p>
+
+            {% endif %}
+
+        </div>
+
         <div class="qr-section">
 
             <h2>Pet Identification QR</h2>

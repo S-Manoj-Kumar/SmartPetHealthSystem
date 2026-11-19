@@ -643,7 +643,7 @@
 
                     <span>ACTIVITY LEVEL</span>
 
-                    <strong>
+                    <strong id="live-activity-level">
                         {{ latest_activity["activity_level"] }}
                     </strong>
 
@@ -656,16 +656,16 @@
 
                 <div>
                     <span>Activity Value</span>
-                    <strong>
-                        {{ latest_activity["activity_value"] }}
-                    </strong>
+                       <strong id="live-activity-value">
+                         {{ latest_activity["activity_value"] }}
+                       </strong>
                 </div>
 
                 <div>
                     <span>Last Recorded</span>
-                    <strong>
-                        {{ latest_activity["recorded_at"] }}
-                    </strong>
+                        <strong id="live-activity-time">
+                            {{ latest_activity["recorded_at"] }}
+                        </strong>
                 </div>
 
             </div>
@@ -675,30 +675,60 @@
                 ● ESP32 Activity Connected
             </span>
 
-            {% else %}
 
-            <div class="empty-state">
+<!-- RECENT ACTIVITY HISTORY -->
 
-                <div class="empty-icon">⌁</div>
+<div class="activity-history">
 
-                <h3>Waiting for activity data</h3>
+    <div class="history-heading">
+        <h3>Recent Activity History</h3>
+        <span>Last 10 readings</span>
+    </div>
 
-                <p>
-                    Activity information will appear here
-                    once data is received from the ESP32
-                    monitoring prototype.
-                </p>
+    {% if recent_activity %}
 
-                <span class="future-badge">
-                    ESP32 Monitoring
-                </span>
+    <div class="activity-table-wrapper">
 
-            </div>
+        <table class="activity-table">
 
-            {% endif %}
+            <thead>
+                <tr>
+                    <th>Value</th>
+                    <th>Level</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
 
-        </div>
+            <tbody id="live-activity-history">
 
+                {% for record in recent_activity %}
+
+                <tr>
+                    <td>{{ "%.2f"|format(record["activity_value"]) }}</td>
+                    <td>
+                        <span class="activity-level-badge">
+                            {{ record["activity_level"] }}
+                        </span>
+                    </td>
+                    <td>{{ record["recorded_at"] }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <p class="history-empty">No activity history available.</p>
+
+    {% endif %}
+
+</div>
+   {% endif %}
 
         <!-- =================================================
              GPS
@@ -758,6 +788,108 @@
     </footer>
 
 </main>
+
+<script>
+
+async function updateActivity() {
+
+    try {
+
+        const response = await fetch(
+            "/api/activity/latest",
+            { cache: "no-store" }
+        );
+
+        if (!response.ok) {
+            throw new Error("Unable to fetch activity data");
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.readings.length) {
+            return;
+        }
+
+        // Latest activity reading
+        const activity = data.readings[0];
+
+        // Update activity level
+        document.getElementById("live-activity-level").textContent =
+            activity.activity_level;
+
+        // Update activity value
+        document.getElementById("live-activity-value").textContent =
+            Number(activity.activity_value).toFixed(2);
+
+        // Update timestamp
+        document.getElementById("live-activity-time").textContent =
+            activity.recorded_at;
+
+        // Update pet name
+        const petName = document.querySelector(".activity-pet h3");
+
+        if (petName) {
+            petName.textContent = activity.pet_name;
+        }
+
+        // Update pet initial
+        const petAvatar = document.querySelector(".activity-avatar");
+
+        if (petAvatar) {
+            petAvatar.textContent = activity.pet_name.charAt(0).toUpperCase();
+        }
+
+        // Update recent activity history
+        const historyBody = document.getElementById(
+         "live-activity-history"
+           );
+
+         if (historyBody) {
+           historyBody.innerHTML = "";
+           }
+
+        data.readings.forEach(record => {
+
+            const row = document.createElement("tr");
+
+            const valueCell = document.createElement("td");
+            valueCell.textContent =
+                Number(record.activity_value).toFixed(2);
+
+            const levelCell = document.createElement("td");
+            const levelBadge = document.createElement("span");
+
+            levelBadge.className = "activity-level-badge";
+            levelBadge.textContent = record.activity_level;
+
+            levelCell.appendChild(levelBadge);
+
+            const timeCell = document.createElement("td");
+            timeCell.textContent = record.recorded_at;
+
+            row.appendChild(valueCell);
+            row.appendChild(levelCell);
+            row.appendChild(timeCell);
+
+            historyBody.appendChild(row);
+
+        });
+
+    } catch (error) {
+
+        console.error("Activity update error:", error);
+
+    }
+
+}
+
+// Check for new readings every 2 seconds
+setInterval(updateActivity, 2000);
+
+// Fetch once when the page loads
+updateActivity();
+
+</script>
 
 </body>
 </html>

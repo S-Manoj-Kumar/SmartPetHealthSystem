@@ -3,3 +3,10 @@ __pycache__/
 .venv/
 venv/
 .env
+# Ignore local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Local working folder
+/data/

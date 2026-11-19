@@ -1,154 +1,129 @@
+
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-import sqlite3
+
 import os
 import qrcode
+import psycopg2
+
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+load_dotenv()
+
 app = Flask(__name__)
 
-DATABASE = "database.db"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 # -----------------------------
 # DATABASE CONNECTION
 # -----------------------------
 
-def get_db_connection():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
 
+from psycopg2.extras import RealDictCursor
+
+
+class HybridRow(dict):
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return list(self.values())[key]
+        return super().__getitem__(key)
+
+
+class HybridCursor:
+
+    def __init__(self, cursor):
+        self.cursor = cursor
+
+    def execute(self, query, params=()):
+        self.cursor.execute(query, params)
+        return self
+
+    def fetchone(self):
+        row = self.cursor.fetchone()
+        return HybridRow(row) if row is not None else None
+
+    def fetchall(self):
+        return [HybridRow(row) for row in self.cursor.fetchall()]
+
+    def close(self):
+        self.cursor.close()
+
+
+class PostgreSQLConnection:
+
+    def __init__(self):
+        self.connection = psycopg2.connect(DATABASE_URL)
+
+    def execute(self, query, params=()):
+        query = query.replace("?", "%s")
+
+        cursor = self.connection.cursor(
+            cursor_factory=RealDictCursor
+        )
+
+        wrapped_cursor = HybridCursor(cursor)
+        wrapped_cursor.execute(query, params)
+
+        return wrapped_cursor
+
+    def commit(self):
+        self.connection.commit()
+
+    def close(self):
+        self.connection.close()
+
+
+def get_db_connection():
+
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL is not configured")
+
+    return PostgreSQLConnection()
 
 # -----------------------------
-# CREATE DATABASE TABLE
+# VERIFY DATABASE TABLES
 # -----------------------------
 
 def init_db():
 
     conn = get_db_connection()
 
-    # -------------------------
-    # PETS TABLE
-    # -------------------------
+    try:
+        result = conn.execute("""
+            SELECT COUNT(*)
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+            AND table_name IN (
+                'pets',
+                'vaccinations',
+                'medications',
+                'health_records',
+                'treatments',
+                'reminders',
+                'activity_records'
+            )
+        """).fetchone()
 
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS pets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pet_id TEXT UNIQUE NOT NULL,
-            name TEXT NOT NULL,
-            breed TEXT NOT NULL,
-            age INTEGER NOT NULL,
-            gender TEXT,
-            owner TEXT NOT NULL,
-            phone TEXT NOT NULL
-        )
-    """)
+        if result[0] != 7:
+            raise RuntimeError(
+                "Required PostgreSQL tables are missing."
+            )
 
-    # -------------------------
-    # VACCINATIONS TABLE
-    # -------------------------
+        print("All 7 PostgreSQL tables verified successfully.")
 
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS vaccinations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pet_id TEXT NOT NULL,
-            vaccine_name TEXT NOT NULL,
-            date_given TEXT NOT NULL,
-            next_due_date TEXT,
-            veterinarian TEXT,
-            notes TEXT,
-            FOREIGN KEY (pet_id) REFERENCES pets (pet_id)
-        )
-    """)
+    finally:
+        conn.close()
 
-    # -------------------------
-    # MEDICATIONS TABLE
-    # -------------------------
 
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS medications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pet_id TEXT NOT NULL,
-            medicine_name TEXT NOT NULL,
-            dosage TEXT,
-            start_date TEXT,
-            end_date TEXT,
-            veterinarian TEXT,
-            notes TEXT,
-            FOREIGN KEY (pet_id) REFERENCES pets (pet_id)
-        )
-    """)
-
-    # -------------------------
-    # HEALTH RECORDS TABLE
-    # -------------------------
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS health_records (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pet_id TEXT NOT NULL,
-            record_type TEXT NOT NULL,
-            record_date TEXT NOT NULL,
-            description TEXT,
-            veterinarian TEXT,
-            notes TEXT,
-            FOREIGN KEY (pet_id) REFERENCES pets (pet_id)
-        )
-    """)
-
-    # -------------------------
-    # TREATMENT HISTORY TABLE
-    # -------------------------
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS treatments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pet_id TEXT NOT NULL,
-            treatment_name TEXT NOT NULL,
-            treatment_date TEXT NOT NULL,
-            veterinarian TEXT,
-            notes TEXT,
-            FOREIGN KEY (pet_id) REFERENCES pets (pet_id)
-        )
-    """)
-
-    # -------------------------
-    # REMINDERS TABLE
-    # -------------------------
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS reminders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pet_id TEXT NOT NULL,
-            reminder_type TEXT NOT NULL,
-            reminder_date TEXT NOT NULL,
-            description TEXT,
-            FOREIGN KEY (pet_id) REFERENCES pets (pet_id)
-        )
-    """)
-
-        # -------------------------
-    # ACTIVITY MONITORING TABLE
-    # -------------------------
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS activity_records (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pet_id TEXT NOT NULL,
-            activity_value REAL NOT NULL,
-            activity_level TEXT,
-            recorded_at TEXT NOT NULL,
-            FOREIGN KEY (pet_id) REFERENCES pets (pet_id)
-        )
-    """)
-
-    conn.commit()
-    conn.close()
-    
 # -----------------------------
 # DASHBOARD
 # -----------------------------
+
 
 @app.route("/")
 def home():
@@ -175,6 +150,7 @@ def home():
         "SELECT COUNT(*) FROM reminders"
     ).fetchone()[0]
 
+    # Get all reminders
     reminders = conn.execute("""
         SELECT reminders.*, pets.name AS pet_name
         FROM reminders
@@ -194,9 +170,26 @@ def home():
         FROM activity_records
         JOIN pets
         ON activity_records.pet_id = pets.pet_id
-        ORDER BY activity_records.recorded_at DESC
+        ORDER BY activity_records.recorded_at DESC,
+                 activity_records.id DESC
         LIMIT 1
     """).fetchone()
+
+    # Get the latest 10 activity records
+    recent_activity = conn.execute("""
+        SELECT
+            activity_records.pet_id,
+            pets.name,
+            activity_records.activity_value,
+            activity_records.activity_level,
+            activity_records.recorded_at
+        FROM activity_records
+        JOIN pets
+        ON activity_records.pet_id = pets.pet_id
+        ORDER BY activity_records.recorded_at DESC,
+                 activity_records.id DESC
+        LIMIT 10
+    """).fetchall()
 
     conn.close()
 
@@ -207,7 +200,8 @@ def home():
         vaccine_count=vaccine_count,
         reminder_count=reminder_count,
         reminders=reminders,
-        latest_activity=latest_activity
+        latest_activity=latest_activity,
+        recent_activity=recent_activity
     )
 
 # -----------------------------
@@ -301,19 +295,41 @@ def pet_profile(pet_id):
 
     conn = get_db_connection()
 
+    # Get pet details
     pet = conn.execute(
         "SELECT * FROM pets WHERE pet_id = ?",
         (pet_id,)
     ).fetchone()
 
-    conn.close()
-
     if pet is None:
+        conn.close()
         return "Pet not found", 404
+
+    # Get latest activity for this pet
+    latest_activity = conn.execute("""
+        SELECT *
+        FROM activity_records
+        WHERE pet_id = ?
+        ORDER BY id DESC
+        LIMIT 1
+    """, (pet_id,)).fetchone()
+
+    # Get latest 10 activity readings for this pet
+    recent_activity = conn.execute("""
+        SELECT *
+        FROM activity_records
+        WHERE pet_id = ?
+        ORDER BY id DESC
+        LIMIT 10
+    """, (pet_id,)).fetchall()
+
+    conn.close()
 
     return render_template(
         "pet_profile.html",
-        pet=pet
+        pet=pet,
+        latest_activity=latest_activity,
+        recent_activity=recent_activity
     )
 
 # -----------------------------
@@ -453,7 +469,7 @@ def vaccinations():
     )
 
 
-    
+
 # -----------------------------
 # PET VACCINATION RECORDS
 # -----------------------------
@@ -800,11 +816,42 @@ def receive_activity():
         "message": "Activity recorded successfully"
     })
 
+
+# -----------------------------
+# GET LATEST ACTIVITY READINGS
+# -----------------------------
+
+@app.route("/api/activity/latest", methods=["GET"])
+def get_latest_activity():
+
+    conn = get_db_connection()
+
+    readings = conn.execute("""
+        SELECT
+            activity_records.pet_id,
+            pets.name AS pet_name,
+            activity_records.activity_value,
+            activity_records.activity_level,
+            activity_records.recorded_at
+        FROM activity_records
+        JOIN pets
+        ON pets.pet_id = activity_records.pet_id
+        ORDER BY activity_records.id DESC
+        LIMIT 10
+    """).fetchall()
+
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "readings": [dict(record) for record in readings]
+    })
+
+
+
 # -----------------------------
 # START APPLICATION
 # -----------------------------
 
 if __name__ == "__main__":
-
-    init_db()
     app.run(host="0.0.0.0", port=5000, debug=True)

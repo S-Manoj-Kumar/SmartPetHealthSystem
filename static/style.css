@@ -2549,3 +2549,80 @@ tr:hover td {
         padding: 25px 20px;
     }
 }
+
+/* =========================================================
+   ACTIVITY HISTORY TABLE
+   ========================================================= */
+
+.activity-history {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+.history-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.history-heading h3 {
+    color: var(--forest-deep);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.history-heading span {
+    color: var(--text-muted);
+    font-size: 9px;
+}
+
+.activity-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+    background: transparent;
+    border: none;
+}
+
+.activity-table th {
+    background: #F1ECE2;
+    color: var(--text-muted);
+    font-size: 9px;
+    padding: 9px 7px;
+    white-space: nowrap;
+}
+
+.activity-table td {
+    color: var(--text-soft);
+    font-size: 10px;
+    padding: 10px 7px;
+    white-space: nowrap;
+}
+
+.activity-table tr:hover td {
+    background: #F7F3EB;
+}
+
+.activity-level-badge {
+    display: inline-block;
+    padding: 3px 7px;
+    background: var(--success-soft);
+    color: var(--forest);
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.history-empty {
+    color: var(--text-muted);
+    font-size: 10px;
+    padding: 10px 0;
+}
